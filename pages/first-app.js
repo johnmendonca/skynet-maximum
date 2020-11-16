@@ -1,17 +1,21 @@
+/*
+ * This page is not actually a part of the app, but it remains for
+ * educational purposes.  It is a React port of the "Creating Your First
+ * Web App on Skynet" article found at:
+ * https://blog.sia.tech/creating-your-first-web-app-on-skynet-ec6f4fff405f
+*/
+
 import React, { useEffect, useState, useCallback, useRef } from 'react'
 import Head from 'next/head'
-import { SkynetClient } from 'skynet-js'
+import { useSkynet } from 'lib/skynet'
+import styles from 'styles/FirstApp.module.css'
 
-export default function Home() {
-  const [skynet, setSkynet] = useState(null)
+export default function FirstApp() {
+  const skynet = useSkynet()
   const [filename, setFilename] = useState(null)
   const [skylink, setSkylink] = useState(null)
   const [directLink, setDirectLink] = useState(null)
   const fileSelect = useRef()
-
-  useEffect(() => {
-    setSkynet(new SkynetClient())
-  }, [])
 
   const createMediaPage = useCallback((mainMediaFile) => {
     const pageContent = `
@@ -49,7 +53,7 @@ export default function Home() {
         const skylink = await skynet.uploadDirectory(mediaFolder, 'mediaFolder')
         // For the redirect link we want to trim the 'sia:' prefix so that the
         // link is https://siasky.net/<skylink hash>/
-        setDirectLink('/' + skylink.replace('sia:', '') + '/')
+        setDirectLink(skynet.portalUrl + '/' + skylink.replace('sia:', '') + '/')
         setSkylink(skylink)
       })()
     } catch (error) {
@@ -62,33 +66,34 @@ export default function Home() {
       <Head>
         <meta charSet="utf-8" />
         <title>Super Awesome Skapp</title>
-        <link rel="stylesheet" href="style.css" />
       </Head>
 
-      <div className="wrapper">
-        <h1>Create a Media Page</h1>
-        <span className="caps" style={{fontSize: "16px"}}>Your Media, Decentralized &amp; Encrypted.</span>
+      <div className={styles.wrapper}>
+        <h1 className={styles.header}>Create a Media Page</h1>
+        <span className={styles.caps} style={{fontSize: "16px"}}>Your Media, Decentralized &amp; Encrypted.</span>
         <br />
 
-        <div className="snippet-wrapper">
-          <label className="btn">
-            <input ref={fileSelect} type="file" id="mediaFile" onChange={(event) => setFilename(event.target.value)} />
+        <div className={styles.snippetWrapper}>
+          <label className={styles.btn}>
+            <input ref={fileSelect} type="file" id="mediaFile"
+                   onChange={(event) => setFilename(event.target.value)}
+                   style={{display: "none"}}/>
             Upload your Media
           </label>
         </div>
         <br />
 
-        <span className="snippet" id="file-selected">{filename}</span>
+        <span className={styles.snippet} id="file-selected">{filename}</span>
 
-        <div className="cta">
-          <button id="save-trigger" className="btn" onClick={() => createMediaPage(fileSelect.current.files[0])}>
+        <div className={styles.cta}>
+          <button id="save-trigger" className={styles.btn} onClick={() => createMediaPage(fileSelect.current.files[0])}>
             Create Media Page!
           </button>
         </div>
 
-        <a className="skylinks" id="mediaLink" href={directLink}>{skylink}</a>
+        <a className={styles.skylinks} id="mediaLink" href={directLink}>{skylink}</a>
 
-        <span style={{marginTop: "auto"}} className="caps">Powered by Sia Skynet</span>
+        <span style={{marginTop: "auto"}} className={styles.caps}>Powered by Sia Skynet</span>
       </div>
     </>
   )
